@@ -13,7 +13,7 @@
         return (
           args.problems &&
           args.changes.length > 0 &&
-          args.changes.some(
+          args.postBuildState.some(
             change => change.hasChange && change.new.includes("if a == nil || b == nil {")
           )
         )
