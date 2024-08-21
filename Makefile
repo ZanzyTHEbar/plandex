@@ -57,6 +57,7 @@ stop-webhook:
 
 eval: start-webhook
 	@cd test/evals/promptfoo-poc/$(filter-out $@,$(MAKECMDGOALS)) && promptfoo eval --no-cache
+	@sleep 2
 	$(MAKE) stop-webhook
 
 view-eval:
