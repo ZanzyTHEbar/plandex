@@ -4,9 +4,7 @@
     changes: file://assets/js/changes/user_management.changes.md
     filePath: user_management.js
     postBuildState: file://assets/js/code/user_management.post.js.txt
-  assert:
-    - type: webhook
-      value: "http://127.0.0.1:9797/webhook"
+  
     #- type: javascript
     #  value: |
     #    var args = JSON.parse(output[0].function.arguments)

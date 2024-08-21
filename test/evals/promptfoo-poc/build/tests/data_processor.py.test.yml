@@ -4,9 +4,7 @@
     changes: file://assets/py/changes/data_processor.changes.md
     filePath: data_processor.py
     postBuildState: file://assets/py/code/data_processor.post.py.txt
-  assert:
-    - type: webhook
-      value: "http://127.0.0.1:9797/webhook"
+  
     #- type: javascript
     #  value: |
     #    var args = JSON.parse(output[0].function.arguments)

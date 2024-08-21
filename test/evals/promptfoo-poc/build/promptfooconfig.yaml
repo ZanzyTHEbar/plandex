@@ -8,4 +8,6 @@ defaultTest:
   assert:
     - type: is-json
     - type: is-valid-openai-tools-call
+    - type: webhook
+      value: "http://127.0.0.1:9797/webhook"
 tests: tests/*.test.yml

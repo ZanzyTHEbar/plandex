@@ -4,9 +4,7 @@
     changes: file://assets/go/changes/network_config.changes.md
     filePath: network_config.go
     postBuildState: file://assets/go/code/network_config.post.go
-  assert:
-    - type: webhook
-      value: "http://127.0.0.1:9797/webhook"
+  
     #- type: javascript
     #  value: |
     #    var args = JSON.parse(output[0].function.arguments)

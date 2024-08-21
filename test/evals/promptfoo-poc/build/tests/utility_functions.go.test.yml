@@ -4,9 +4,7 @@
     changes: file://assets/go/changes/utility_functions.changes.md
     filePath: utility_functions.go
     postBuildState: file://assets/go/code/utility_functions.post.go
-  assert:
-    - type: webhook
-      value: "http://127.0.0.1:9797/webhook"
+  
 #- type: javascript
 #  value: |
 #    var args = JSON.parse(output[0].function.arguments)
