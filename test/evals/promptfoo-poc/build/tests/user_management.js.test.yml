@@ -1,9 +1,9 @@
 - description: "Verify UserManager class implementation"
   vars:
-    preBuildState: file://assets/js/code/user_management.js
+    preBuildState: file://assets/js/code/user_management.js.txt
     changes: file://assets/js/changes/user_management.changes.md
     filePath: user_management.js
-    postBuildState: file://assets/js/code/user_management.post.js
+    postBuildState: file://assets/js/code/user_management.post.js.txt
   assert:
     - type: is-json
     - type: is-valid-openai-tools-call
