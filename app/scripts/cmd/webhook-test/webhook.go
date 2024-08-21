@@ -72,6 +72,10 @@ func diffAndEvaluate(output, postBuildState string) (bool, float64, string) {
 	return false, similarity, "The output does not meet the custom validation criteria."
 }
 
+func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
 // webhookHandler handles the incoming POST request
 func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
@@ -104,6 +108,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/webhook", webhookHandler)
-	fmt.Println("Starting server on port 8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.HandleFunc("/health", healthCheckHandler)
+	fmt.Println("Starting server on port 9797...")
+	log.Fatal(http.ListenAndServe(":9797", nil))
 }

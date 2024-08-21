@@ -8,7 +8,7 @@
     - type: is-json
     - type: is-valid-openai-tools-call
     - type: webhook
-      value: "http://localhost:8080/webhook"
+      value: "http://localhost:9797/webhook"
     #- type: javascript
     #  value: |
     #    var args = JSON.parse(output[0].function.arguments)
