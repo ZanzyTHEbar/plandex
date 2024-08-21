@@ -16,6 +16,10 @@ ifeq ($(PLANDEX_ENV),development)
 BINARY_NAME = plandex-dev
 endif
 
+WEBHOOK_SERVER=webhook-server
+WEBHOOK_PORT=8080
+WEBHOOK_URL=http://localhost:$(WEBHOOK_PORT)/webhook
+
 # create a dev cmd that runs a shell script
 dev:
 	@cd app/scripts && ./dev.sh
@@ -38,7 +42,20 @@ test: render
 
 #! No cache is used to ensure that the latest changes are reflected in the eval
 # TODO: Implement eval all
-eval:
+
+# Target to start the webhook server
+start-webhook:
+	@echo "Starting Go webhook server..."
+	@$(GOCMD) run app/scripts/cmd/webhook-test/webhook.go & echo $$! > $(WEBHOOK_SERVER).pid
+	$(MAKE) stop-webhook
+
+# Target to stop the webhook server
+stop-webhook:
+	@echo "Stopping Go webhook server..."
+	@kill `cat $(WEBHOOK_SERVER).pid` || true
+	@rm -f $(WEBHOOK_SERVER).pid
+
+eval: start-webhook
 	@cd test/evals/promptfoo-poc/$(filter-out $@,$(MAKECMDGOALS)) && promptfoo eval --no-cache
 
 view-eval:
