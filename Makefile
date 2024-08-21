@@ -47,7 +47,7 @@ test: render
 start-webhook:
 	@echo "Starting Go webhook server..."
 	@$(GOCMD) run app/scripts/cmd/webhook-test/webhook.go & echo $$! > $(WEBHOOK_SERVER).pid
-	$(MAKE) stop-webhook
+	@sleep 2
 
 # Target to stop the webhook server
 stop-webhook:
@@ -57,6 +57,7 @@ stop-webhook:
 
 eval: start-webhook
 	@cd test/evals/promptfoo-poc/$(filter-out $@,$(MAKECMDGOALS)) && promptfoo eval --no-cache
+	$(MAKE) stop-webhook
 
 view-eval:
 	@cd test/evals/promptfoo-poc/$(filter-out $@,$(MAKECMDGOALS)) && promptfoo view
