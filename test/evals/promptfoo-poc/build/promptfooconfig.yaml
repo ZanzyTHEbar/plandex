@@ -10,4 +10,5 @@ defaultTest:
     - type: is-valid-openai-tools-call
     - type: webhook
       value: "http://127.0.0.1:9797/webhook"
+#tests: tests/build.go.test.yml
 tests: tests/*.test.yml
