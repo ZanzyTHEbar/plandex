@@ -68,7 +68,7 @@ type ResponsePayload struct {
 	Reason string  `json:"reason,omitempty"` // Reason is optional
 }
 
-// processDynamicJSON processes the dynamic JSON data and implements the provided logic
+// NOTE: THIS IS NOT IN USE, only kept for posterity incase we need it. processDynamicJSON processes the dynamic JSON data and implements the provided logic
 func processDynamicJSON(data map[string]interface{}) (ResponsePayload, error) {
 	var postBuildState, newChanges string
 	var pass bool
