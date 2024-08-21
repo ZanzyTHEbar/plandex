@@ -29,7 +29,7 @@ type ResponsePayload struct {
 	Reason string  `json:"reason,omitempty"` // Reason is optional
 }
 
-// cosineSimilarity calculates the cosine similarity between two strings
+// cosineSimilarity calculates the cosine similarity between two strings - used for similarity comparison across large and varied text
 func cosineSimilarity(a, b string) float64 {
 	vecA := getWordFrequency(a)
 	vecB := getWordFrequency(b)
@@ -64,7 +64,7 @@ func getWordFrequency(text string) map[string]int {
 // diffAndEvaluate calculates the similarity and determines pass/fail
 func diffAndEvaluate(output, postBuildState string) (bool, float64, string) {
 	similarity := cosineSimilarity(output, postBuildState)
-	passThreshold := 0.8 // Set your desired threshold here
+	passThreshold := 0.8 // Set our desired threshold here - i think 0.8 is fair.
 
 	if similarity >= passThreshold {
 		return true, similarity, "The output meets the custom validation criteria."
@@ -74,7 +74,6 @@ func diffAndEvaluate(output, postBuildState string) (bool, float64, string) {
 
 // webhookHandler handles the incoming POST request
 func webhookHandler(w http.ResponseWriter, r *http.Request) {
-	// Using io.ReadAll (recommended replacement for ioutil.ReadAll)
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Unable to read request body", http.StatusBadRequest)
