@@ -3,8 +3,11 @@ package shared
 import (
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/hashicorp/go-multierror"
 )
 
 type StreamedChangeSection struct {
@@ -82,6 +85,47 @@ func (streamedChange StreamedChangeWithLineNums) GetLines() (int, int, error) {
 	}
 
 	return startLine, endLine, nil
+}
+
+func SortStreamedChanges(changes []*StreamedChangeWithLineNums) ([]*StreamedChangeWithLineNums, error) {
+	sorted := []*StreamedChangeWithLineNums{}
+
+	for _, change := range changes {
+		if change.HasChange {
+			sorted = append(sorted, change)
+		}
+	}
+
+	var sortErrs []error
+
+	// Sort the streamed changes by start line
+	sort.Slice(sorted, func(i, j int) bool {
+		var iStartLine int
+		var jStartLine int
+
+		// Convert the line number part to an integer
+		iStartLine, _, err := sorted[i].GetLines()
+
+		if err != nil {
+			sortErrs = append(sortErrs, fmt.Errorf("error getting start line for change %v: %v", sorted[i], err))
+			return false
+		}
+
+		jStartLine, _, err = sorted[j].GetLines()
+
+		if err != nil {
+			sortErrs = append(sortErrs, fmt.Errorf("error getting start line for change %v: %v", sorted[j], err))
+			return false
+		}
+
+		return iStartLine < jStartLine
+	})
+
+	if len(sortErrs) > 0 {
+		return nil, multierror.Append(nil, sortErrs...)
+	}
+
+	return sorted, nil
 }
 
 func extractLineNumber(line string) (int, error) {

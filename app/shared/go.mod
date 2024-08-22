@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 )
@@ -15,6 +16,7 @@ require (
 require (
 	github.com/dlclark/regexp2 v1.11.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.1
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/sashabaranov/go-openai v1.24.0
 	golang.org/x/image v0.17.0

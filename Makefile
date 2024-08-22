@@ -47,8 +47,11 @@ test: render
 
 # Target to start the webhook server
 start-webhook:
+	@echo "Building Go webhook server..."
+	@$(GOCMD) build -o webhook-server app/scripts/cmd/webhook-test/webhook.go
 	@echo "Starting Go webhook server on port $(WEBHOOK_PORT) ..."
-	@$(GOCMD) run app/scripts/cmd/webhook-test/webhook.go & \
+	@trap 'echo "Stopping webhook server..."; kill $$WEBHOOK_PID; rm -f webhook-server; exit' INT TERM EXIT; \
+	./webhook-server & \
 	WEBHOOK_PID=$$! && \
 	echo "Webhook server started with PID $$WEBHOOK_PID" && \
 	echo "Process Name: $(WEBHOOK_SERVER_NAME), Port: $(WEBHOOK_PORT)"
@@ -77,7 +80,7 @@ health-check-webhook:
 		echo "Webhook server is not running or unhealthy (status: $$HTTP_STATUS)."; \
 	fi
 
-eval: start-webhook
+eval: #start-webhook - commenting this out for now in order to run webhook server manually and see the output more easily
 	@sleep 2
 	@$(MAKE) health-check-webhook
 	@cd test/evals/promptfoo-poc/$(filter-out $@,$(MAKECMDGOALS)) && promptfoo eval --no-cache

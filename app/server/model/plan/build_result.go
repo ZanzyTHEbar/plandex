@@ -8,7 +8,6 @@ import (
 	"plandex-server/db"
 	"plandex-server/syntax"
 	"plandex-server/types"
-	"sort"
 	"strings"
 	"time"
 
@@ -17,32 +16,7 @@ import (
 	"github.com/plandex/plandex/shared"
 )
 
-type OverlapStrategy int
-
-const (
-	OverlapStrategySkip OverlapStrategy = iota
-	OverlapStrategyError
-)
-
-type PlanResultParams struct {
-	OrgId               string
-	PlanId              string
-	PlanBuildId         string
-	ConvoMessageId      string
-	FilePath            string
-	PreBuildState       string
-	OverlapStrategy     OverlapStrategy
-	ChangesWithLineNums []*shared.StreamedChangeWithLineNums
-
-	CheckSyntax bool
-
-	IsFix       bool
-	IsSyntaxFix bool
-	IsOtherFix  bool
-	FixEpoch    int
-}
-
-func GetPlanResult(ctx context.Context, params PlanResultParams) (*db.PlanFileResult, string, bool, error) {
+func GetPlanResult(ctx context.Context, params types.PlanResultParams) (*db.PlanFileResult, string, bool, error) {
 	orgId := params.OrgId
 	planId := params.PlanId
 	planBuildId := params.PlanBuildId
@@ -116,7 +90,7 @@ func GetPlanResult(ctx context.Context, params PlanResultParams) (*db.PlanFileRe
 			log.Printf("streamedChange:\n")
 			log.Println(spew.Sdump(streamedChangesWithLineNums))
 
-			if params.OverlapStrategy == OverlapStrategyError {
+			if params.OverlapStrategy == types.OverlapStrategyError {
 				return nil, "", false, fmt.Errorf("start line is less than highestEndLine: %d < %d", startLine,
 					highestEndLine)
 			} else {
@@ -125,7 +99,7 @@ func GetPlanResult(ctx context.Context, params PlanResultParams) (*db.PlanFileRe
 		}
 
 		if endLine < highestEndLine {
-			if params.OverlapStrategy == OverlapStrategyError {
+			if params.OverlapStrategy == types.OverlapStrategyError {
 				log.Printf("End line is less than highestEndLine: %d < %d\n", endLine, highestEndLine)
 				return nil, "", false, fmt.Errorf("end line is less than highestEndLine: %d < %d", endLine, highestEndLine)
 			} else {
@@ -228,50 +202,24 @@ func (fileState *activeBuildStreamFileState) onBuildResult(res types.ChangesWith
 		return
 	}
 
-	sorted := []*shared.StreamedChangeWithLineNums{}
+	sorted, err := shared.SortStreamedChanges(res.Changes)
 
-	// Sort the streamed changes by start line
-	for _, change := range res.Changes {
-		if change.HasChange {
-			sorted = append(sorted, change)
-		}
+	if err != nil {
+		log.Println("listenStream - Error sorting streamed changes:", err)
+		fileState.lineNumsRetryOrError(fmt.Errorf("listenStream - error sorting streamed changes for file '%s': %v", filePath, err))
+		return
 	}
-
-	// Sort the streamed changes by start line
-	sort.Slice(sorted, func(i, j int) bool {
-		var iStartLine int
-		var jStartLine int
-
-		// Convert the line number part to an integer
-		iStartLine, _, err := sorted[i].GetLines()
-
-		if err != nil {
-			log.Printf("listenStream - Error getting start line for change %v: %v\n", sorted[i], err)
-			fileState.lineNumsRetryOrError(fmt.Errorf("listenStream - error getting start line for change %v: %v", sorted[i], err))
-			return false
-		}
-
-		jStartLine, _, err = sorted[j].GetLines()
-
-		if err != nil {
-			log.Printf("listenStream - Error getting start line for change %v: %v\n", sorted[j], err)
-			fileState.lineNumsRetryOrError(fmt.Errorf("listenStream - error getting start line for change %v: %v", sorted[j], err))
-			return false
-		}
-
-		return iStartLine < jStartLine
-	})
 
 	fileState.streamedChangesWithLineNums = sorted
 
-	var overlapStrategy OverlapStrategy = OverlapStrategyError
+	var overlapStrategy types.OverlapStrategy = types.OverlapStrategyError
 	if fileState.lineNumsNumRetry > 1 {
-		overlapStrategy = OverlapStrategySkip
+		overlapStrategy = types.OverlapStrategySkip
 	}
 
 	planFileResult, updatedFile, allSucceeded, err := GetPlanResult(
 		activePlan.Ctx,
-		PlanResultParams{
+		types.PlanResultParams{
 			OrgId:               currentOrgId,
 			PlanId:              planId,
 			PlanBuildId:         build.Id,

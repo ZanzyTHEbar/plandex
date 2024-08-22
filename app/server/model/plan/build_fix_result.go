@@ -62,14 +62,14 @@ func (fileState *activeBuildStreamFileState) onFixResult(res types.ChangesWithLi
 
 	fileState.streamedChangesWithLineNums = sorted
 
-	var overlapStrategy OverlapStrategy = OverlapStrategyError
+	var overlapStrategy types.OverlapStrategy = types.OverlapStrategyError
 	if fileState.fixFileNumRetry > 1 {
-		overlapStrategy = OverlapStrategySkip
+		overlapStrategy = types.OverlapStrategySkip
 	}
 
 	planFileResult, updated, allSucceeded, err := GetPlanResult(
 		activePlan.Ctx,
-		PlanResultParams{
+		types.PlanResultParams{
 			OrgId:               currentOrgId,
 			PlanId:              planId,
 			PlanBuildId:         build.Id,
